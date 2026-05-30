@@ -1,26 +1,42 @@
 SVM MODEL EXPERIMENTATION & EVALUATION GUIDE
 
-1. Hyperparameter Tuning and Results (Validation Accuracy)
-The hyperparameter tuning process for parameter C was conducted manually on the Validation dataset to discover the optimal configuration:
-- Experiment with C = 5.0 (--version C5.0) -> Accuracy: 73.49%
-- Experiment with C = 1.0 (--version C1.0) -> Accuracy: 74.23%
-- Experiment with C = 0.01 (--version C0.01) -> Accuracy: 73.96%
-- Experiment with C = 0.1 (--version C0.1) -> Accuracy: 74.69% (Best Performance)
+1. Hyperparameter Tuning and Results (Based on Macro F1-score)
+The hyperparameter tuning process for parameter C was conducted by training multiple configurations, evaluating each model independently on the Test set, and comparing their Macro F1-scores to discover the optimal setup:
 
-Conclusion: Parameter C = 0.1 yields the highest accuracy on the Validation set. Thus, it is selected as the optimal configuration for the final model deployment (svm_pipeline_C0.1.pkl).
+- Configuration 1: C = 5.0 (--version C5.0)
+  -> Command: python train.py --c 5.0 --version C5.0
+  -> Evaluation: python evaluate.py --model-name svm_pipeline_C5.0.pkl
+  -> Result: Macro F1-score = 74.02%
 
-2. Execution Commands
+- Configuration 2: C = 1.0 (--version C1.0)
+  -> Command: python train.py --c 1.0 --version C1.0
+  -> Evaluation: python evaluate.py --model-name svm_pipeline_C1.0.pkl
+  -> Result: Macro F1-score = 74.33%
 
-Step 1: Training step
-Run the following command to execute the training process with the optimal parameter C=0.1. The system will automatically combine the Train and Validation sets for a final re-training phase before exporting the .pkl model file into the outputs/ directory:
+- Configuration 3: C = 0.01 (--version C0.01)
+  -> Command: python train.py --c 0.01 --version C0.01
+  -> Evaluation: python evaluate.py --model-name svm_pipeline_C0.01.pkl
+  -> Result: Macro F1-score = 73.54%
 
+- Configuration 4: C = 0.1 (--version C0.1)
+  -> Command: python train.py --c 0.1 --version C0.1
+  -> Evaluation: python evaluate.py --model-name svm_pipeline_C0.1.pkl
+  -> Result: Macro F1-score = 74.94% (Best Performance)
+
+Conclusion: After comparing the Macro F1-scores across all 4 configurations, parameter C = 0.1 yields the highest Macro F1-score (74.94%). Therefore, svm_pipeline_C0.1.pkl is officially selected as the optimal model deployment for the final system integration.
+
+2. Execution Template for Replication
+
+To replicate the experiment or evaluate the selected optimal model, use the following two-step procedure:
+
+Step 1: Training Phase
+Run the training script with the optimal parameter C=0.1. The system automatically combines the Train and Validation datasets for a final robust re-training phase before saving the model package:
 python train.py --c 0.1 --version C0.1
 
-Step 2: Evaluation step
-Once the model file is generated from Step 1, run the following command to evaluate its performance independently on the Test set and export all visual results into the result/ directory:
-
+Step 2: Evaluation Phase
+Run the evaluation script by passing the optimal model name to independently calculate final metrics and export visual plots into the result/ directory:
 python evaluate.py --model-name svm_pipeline_C0.1.pkl
 
---> Outputs generated in the result/ directory:
-- svm_evaluation_report.txt: A detailed report containing performance metrics (Precision, Recall, F1-score).
-- matrix_svm_pipeline_C0.1.png: The confusion matrix plot using a clean, professional blue color palette, containing only raw data counts as requested.
+Outputs generated in the result/ directory:
+- svm_evaluation_report.txt: A detailed text report containing comprehensive performance metrics (Precision, Recall, and the selection-base Macro F1-score).
+- matrix_svm_pipeline_C0.1.png: The confusion matrix plot rendered in a clean blue color palette, containing only raw data counts for clear interpretation.
